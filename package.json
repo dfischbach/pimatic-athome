@@ -1,0 +1,30 @@
+{ "name": "pimatic-athome",
+  "description": "pimatic plugin to communicate with an arduino.",
+  "keywords" : "pimatic",
+  "author": "Dirk Fischbach <dirk@fischbachnet.de>",
+  "main": "athome.coffee",
+  "files": [
+    "athome.coffee",
+    "README.md",
+    "athome-plugin-config-schema.coffee",
+    "athome-device-fs20-config-schema.coffee",
+    "athome-device-elro-config-schema.coffee",
+    "athome-sensorvalue-config-schema.coffee"
+  ],
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "serialport": "1.3.1"
+  },
+  "peerDependencies": {
+    "pimatic": ">0.7.x"
+  },
+  "engines": {
+    "node": ">0.8.x",
+    "npm": ">1.1.x"
+  },
+  "repository" : { 
+    "type" : "git",
+    "url" : "http://github.com/dfischbach/pimatic-athome.git"
+  }
+}
