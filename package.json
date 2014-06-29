@@ -30,14 +30,5 @@
   "repository": {
     "type": "git",
     "url": "http://github.com/dfischbach/pimatic-athome.git"
-  },
-  "readme": "pimatic-athome\n==============\n\nThis is a pimatic plugin which allows you to connect an Arduino compatible micro-controller over the serial port to the [pimatic home automation framework](http://pimatic.org).\n\nIn general you can use the plugin and micro-controller source code as a starting point for your specific needs.\nIt shows you, how to setup the communication between PI/Pimatic and the controller board using a serial connection.\n  a separate USB to serial converter or the build in one with boards like the Arduino nano.\n\n\n\nThe source code for the micro-controller is avaible [here](https://github.com/dfischbach/pimatic-athome-arduino).\n\n##Installation\nTo enable the AtHome plugin add this section to your config.json file.\n\n```\n...\n{\n  \"plugin\": \"athome\",\n  \"serialDeviceName\": \"/dev/ttyUSB0\",\n  \"demo\": true,\n}\n...\n```\n\nYou may need to change the name of the serial device. This depends on your configuration.<br/>\nOn the Raspberry Pi it looks like '/dev/ttyUSB0'.<br/>\nOn my MacBook it is something like '/dev/tty.usbserial-A401159R' for an FTDI based USB to serial converter.\n\nUse\n```\nsudo ls /dev\n\n```\nto display the available devices.\n\n\nThis is an example for the devices section in the config.json file.\n\n```\n...\n  \"devices\": [\n    {\n      \"class\": \"AHSwitchFS20\",\n      \"id\": \"socketF1\",\n      \"name\": \"Socket FS20\",\n      \"houseid\": \"1234\",\n      \"deviceid\": \"A8\"\n    },\n    {\n      \"class\": \"AHSwitchElro\",\n      \"id\": \"socketE1\",\n      \"name\": \"Socket Elro\",\n      \"houseid\": \"11011\",\n      \"deviceid\": \"10000\"\n    },\n    {\n      \"class\": \"AHRCSwitchElro\",\n      \"id\": \"remoteswitch1\",\n      \"name\": \"Remote Switch D\",\n      \"houseid\": \"11011\",\n      \"deviceid\": \"00010\"\n    },\n    {\n      \"class\": \"AHSensorValue\",\n      \"id\": \"valueWater\",\n      \"name\": \"Water\",\n      \"sensorid\": \"2\",\n      \"label\": \"Water volume\",\n      \"unit\": \"l\"\n    },\n    {\n      \"class\": \"AHSensorValue\",\n      \"id\": \"valueTemperature\",\n      \"name\": \"Temperature Living Room\",\n      \"sensorid\": \"10\",\n      \"label\": \"Temperature\",\n      \"unit\": \"°C\"\n    }\n  ],\n\n```\n\n\n\nMore documentation will follow.\n",
-  "readmeFilename": "README.md",
-  "bugs": {
-    "url": "https://github.com/dfischbach/pimatic-athome/issues"
-  },
-  "homepage": "https://github.com/dfischbach/pimatic-athome",
-  "_id": "pimatic-athome@0.1.2",
-  "_shasum": "e6c9585605c7be06a9617d47f88ce1ce9b1fb718",
-  "_from": "pimatic-athome@0.1.2"
+  }
 }
