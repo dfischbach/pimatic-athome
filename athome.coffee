@@ -30,12 +30,13 @@ module.exports = (env) ->
       @isDemo = @conf.get "demo"
 
       serialName = @conf.get "serialDeviceName"
-      env.logger.info "atHome: init with serial device name #{serialName}  demo #{@isDemo}"
+      baudrate = @conf.get "baudrate"
+      env.logger.info "atHome: init with serial device #{serialName}@#{baudrate}baud demo #{@isDemo}"
 
       @cmdReceivers = [];
 
       if !@isDemo
-        @transport = new AHTransport serialName, @receiveCommandCallback
+        @transport = new AHTransport serialName, baudrate, @receiveCommandCallback
 
 
     createDevice: (deviceConfig) ->
@@ -78,23 +79,27 @@ module.exports = (env) ->
 
     @serial
 
-    constructor: (serialPortName, @receiveCommandHandler) ->
-
+    constructor: (serialPortName, baudrate, @receiveCommandHandler) ->
       @cmdString = ""
-      @serial = new SerialPort serialPortName, baudrate: 57600, false
+      @isPortOpen = false
+      @serial = new SerialPort serialPortName, {baudrate: baudrate}, false
 
       @serial.open (err) ->
         if ( err? )
-          env.logger.info "open serialPort #{serialPortName} failed #{err}"
+          env.logger.error "open serialPort #{serialPortName} failed #{err}"
         else
           env.logger.info "open serialPort #{serialPortName}"
 
 
-      @serial.on 'open', ->
-         @.write('echo\n');
+      @serial.on 'open', =>
+        @isPortOpen = true
 
-      @serial.on 'error', (err) ->
-         env.logger.error "atHome: serial error #{err}"
+      @serial.on 'close', =>
+        @isPortOpen = false
+
+      @serial.on 'error', (err) =>
+        env.logger.error "atHome: serial error #{err}"
+        @isPortOpen = false
 
       @serial.on 'data', (data) =>
         env.logger.debug "atHome: serial data received #{data}"
@@ -115,17 +120,24 @@ module.exports = (env) ->
         else
           @cmdString = @cmdString + dataString
 
-    sendCommand: (id, cmdString) ->
-      env.logger.debug "AtHomeTransport: #{id} sendCommand #{cmdString}"
-      @serial.write(cmdString+'\n')
-
+    sendCommand: (id, cmdString) =>
+      if @isPortOpen
+        env.logger.debug "AtHomeTransport: #{id} sendCommand #{cmdString}"
+        @serial.write(cmdString+'\n')
+      else
+        env.logger.error "AtHomeTransport: serial port not open -> skipping command, trying to open serial port"
+        @serial.open (err) =>
+          if ( err? )
+            env.logger.error "open serialPort failed #{err}"
+          else
+            env.logger.info "serialPort opened"
 
 
   # AHSwitchFS20 controls FS20 devices
   class AHSwitchFS20 extends env.devices.PowerSwitch
 
     constructor: (deviceconfig) ->
-      @conf = convict _.cloneDeep(require("./athome-device-fs20-config-schema"))
+      @conf = convict _.cloneDeep(require("./athome-device-config-schema").AHSwitchFS20)
       @conf.load deviceconfig
       @conf.validate()
 
@@ -149,7 +161,7 @@ module.exports = (env) ->
   class AHSwitchElro extends env.devices.PowerSwitch
 
     constructor: (deviceconfig) ->
-      @conf = convict _.cloneDeep(require("./athome-device-elro-config-schema"))
+      @conf = convict _.cloneDeep(require("./athome-device-config-schema").AHSwitchElro)
       @conf.load deviceconfig
       @conf.validate()
 
@@ -174,7 +186,7 @@ module.exports = (env) ->
   class AHRCSwitchElro extends env.devices.PowerSwitch
 
     constructor: (deviceconfig) ->
-      @conf = convict _.cloneDeep(require("./athome-device-elro-config-schema"))
+      @conf = convict _.cloneDeep(require("./athome-device-config-schema").AHSwitchElro)
       @conf.load deviceconfig
       @conf.validate()
 
@@ -212,7 +224,7 @@ module.exports = (env) ->
     getTemplateName: -> "device"
 
     constructor: (deviceconfig, demo) ->
-      @conf = convict _.cloneDeep(require("./athome-sensorvalue-config-schema"))
+      @conf = convict _.cloneDeep(require("./athome-device-config-schema").AHSensorValue)
       @conf.load deviceconfig
       @conf.validate()
 
