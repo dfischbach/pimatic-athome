@@ -3,8 +3,7 @@ module.exports = (env) ->
 
   convict = env.require "convict"
 
-  # Require the [Q](https://github.com/kriskowal/q) promise library
-  Q = env.require 'q'
+  Promise = env.require 'bluebird'
 
   # Require the [cassert library](https://github.com/rhoot/cassert).
   assert = env.require 'cassert'
@@ -139,12 +138,12 @@ module.exports = (env) ->
 
 
     changeStateTo: (state) ->
-      if @_state is state then return Q true
-      else return Q.fcall =>
+      if @_state is state then return Promise.resolve true
+      else return Promise.try( =>
         cmd = 'F '+@houseid+@deviceid
         atHomePlugin.sendCommand @id, (if state is on then cmd+'10' else cmd+'00')
         @_setState state
-
+      )
 
   # AHSwitchElro controls ELRO power points
   class AHSwitchElro extends env.devices.PowerSwitch
@@ -159,12 +158,12 @@ module.exports = (env) ->
 
 
     changeStateTo: (state) ->
-      if @_state is state then return Q true
-      else return Q.fcall =>
+      if @_state is state then return Promise.resolve true
+      else return Promise.try( =>
         cmd = 'E '+@houseid+' '+@deviceid
         atHomePlugin.sendCommand @id, (if state is on then cmd+' 1' else cmd+' 0')
         @_setState state
-
+      )
 
 
   # AHRCSwitchElro is a switch which state can be changed be the ui or by an ELRO Remote control
@@ -181,9 +180,10 @@ module.exports = (env) ->
       super()
 
     changeStateTo: (state) ->
-      if @_state is state then return Q true
-      else return Q.fcall =>
+      if @_state is state then return Promise.resolve true
+      else return Promise.try( =>
         @_setState state
+      )
 
     handleReceivedCmd: (command) ->
       params = command.split " "
@@ -227,7 +227,7 @@ module.exports = (env) ->
 
       super()
 
-    getValue: -> Q(@value)
+    getValue: -> Promise.resolve(@value)
 
     handleReceivedCmd: (command) ->
       params = command.split " "
