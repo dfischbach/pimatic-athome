@@ -49,7 +49,7 @@ module.exports = (env) ->
             createCallback: (deviceConfig) => 
               device = new Cl(deviceConfig, @isDemo)
               if Cl in [AHRCSwitchElro, AHSensorValue]
-                @cmdReceivers.push rswitch
+                @cmdReceivers.push device
               return device
           })
 
