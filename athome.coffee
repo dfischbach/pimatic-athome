@@ -28,7 +28,7 @@ module.exports = (env) ->
       baudrate = config.baudrate
       env.logger.info "atHome: init with serial device #{serialName}@#{baudrate}baud demo #{@isDemo}"
 
-      @cmdReceivers = [];
+      @cmdReceivers = []
 
       if !@isDemo
         @transport = new AHTransport serialName, baudrate, @receiveCommandCallback
@@ -99,7 +99,7 @@ module.exports = (env) ->
         dataString = "#{data}"
 
         # remove carriage return
-        dataString = dataString.replace(/[\r]/g, '');
+        dataString = dataString.replace(/[\r]/g, '')
 
         # line feed ?
         if dataString.indexOf('\n') != -1
@@ -195,7 +195,7 @@ module.exports = (env) ->
       else
         @changeStateTo off
 
-      return true;
+      return true
 
 
   # AHSensorValue handles arduino delivered measure values like voltage, temperatue, ...
@@ -236,7 +236,7 @@ module.exports = (env) ->
 
       @value = parseFloat(params[3], 10)*@scale + @offset
       @emit "value", @value
-      return true;
+      return true
 
     updateDemoValue: () ->
       @value = @value+50
@@ -249,14 +249,12 @@ module.exports = (env) ->
       super(deviceconfig)
 
     handleReceivedCmd: (command) ->
-      console.log command
-      return false
-      # params = command.split " "
-      # return false if params.length < 4 or params[0] != "SV" or params[1] != @sensorid
-
-      # @value = parseFloat(params[3], 10)*@scale + @offset
-      # @emit "value", @value
-      # return true;
+      params = command.split " "
+      return false if params.length < 2 or params[0] != "K"
+      key = params[1]
+      #TODO: Check if button is on deviceconfig
+      @emit "button", key
+      return true
 
 
   atHomePlugin = new AtHomePlugin
