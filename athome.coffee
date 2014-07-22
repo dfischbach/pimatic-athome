@@ -149,10 +149,6 @@ module.exports = (env) ->
   class AHSwitchElro extends env.devices.PowerSwitch
 
     constructor: (deviceconfig) ->
-      @conf = convict _.cloneDeep(require("./athome-device-config-schema").AHSwitchElro)
-      @conf.load deviceconfig
-      @conf.validate()
-
       @id = deviceconfig.id
       @name = deviceconfig.name
       @houseid = deviceconfig.houseid
@@ -174,10 +170,6 @@ module.exports = (env) ->
   class AHRCSwitchElro extends env.devices.PowerSwitch
 
     constructor: (deviceconfig) ->
-      @conf = convict _.cloneDeep(require("./athome-device-config-schema").AHSwitchElro)
-      @conf.load deviceconfig
-      @conf.validate()
-
       @id = deviceconfig.id
       @name = deviceconfig.name
       @houseid = deviceconfig.houseid
@@ -212,10 +204,6 @@ module.exports = (env) ->
     getTemplateName: -> "device"
 
     constructor: (deviceconfig, demo) ->
-      @conf = convict _.cloneDeep(require("./athome-device-config-schema").AHSensorValue)
-      @conf.load deviceconfig
-      @conf.validate()
-
       @id = deviceconfig.id
       @name = deviceconfig.name
       @sensorid = deviceconfig.sensorid
