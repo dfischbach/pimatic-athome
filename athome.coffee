@@ -22,15 +22,10 @@ module.exports = (env) ->
     init: (app, @framework, config) ->
       env.logger.info "atHome: init"
 
-      @conf = convict _.cloneDeep(require("./athome-plugin-config-schema"))
+      @isDemo = config.demo
 
-      @conf.load config
-      @conf.validate()
-
-      @isDemo = @conf.get "demo"
-
-      serialName = @conf.get "serialDeviceName"
-      baudrate = @conf.get "baudrate"
+      serialName = config.serialDeviceName
+      baudrate = config.baudrate
       env.logger.info "atHome: init with serial device #{serialName}@#{baudrate}baud demo #{@isDemo}"
 
       @cmdReceivers = [];
@@ -38,28 +33,25 @@ module.exports = (env) ->
       if !@isDemo
         @transport = new AHTransport serialName, baudrate, @receiveCommandCallback
 
+      deviceConfigDef = require("./athome-device-config-schema")
 
-    createDevice: (deviceConfig) ->
-      env.logger.info "atHome: createDevice #{deviceConfig.id}"
-      return switch deviceConfig.class
-        when 'AHSwitchFS20'
-          @framework.registerDevice(new AHSwitchFS20 deviceConfig)
-          true
-        when 'AHSwitchElro'
-          @framework.registerDevice(new AHSwitchElro deviceConfig)
-          true
-        when 'AHRCSwitchElro'
-          rswitch = new AHRCSwitchElro deviceConfig
-          @cmdReceivers.push rswitch
-          @framework.registerDevice(rswitch)
-          true
-        when 'AHSensorValue'
-          value = new AHSensorValue deviceConfig, @isDemo
-          @cmdReceivers.push value
-          @framework.registerDevice(value)
-          true
-        else
-          false
+      deviceClasses = [
+        AHSwitchFS20,
+        AHSwitchElro, 
+        AHSensorValue,
+        AHRCSwitchElro,
+      ]
+
+      for Cl in deviceClasses
+        do (Cl) =>
+          @framework.registerDeviceClass(Cl.name, {
+            configDef: deviceConfigDef[Cl.name]
+            createCallback: (deviceConfig) => 
+              device = new Cl(deviceConfig, @isDemo)
+              if Cl in [AHRCSwitchElro, AHSensorValue]
+                @cmdReceivers.push rswitch
+              return device
+          })
 
     sendCommand: (id, cmdString) ->
       if !@isDemo
@@ -137,14 +129,10 @@ module.exports = (env) ->
   class AHSwitchFS20 extends env.devices.PowerSwitch
 
     constructor: (deviceconfig) ->
-      @conf = convict _.cloneDeep(require("./athome-device-config-schema").AHSwitchFS20)
-      @conf.load deviceconfig
-      @conf.validate()
-
-      @id = @conf.get "id"
-      @name = @conf.get "name"
-      @houseid = @conf.get "houseid"
-      @deviceid = @conf.get "deviceid"
+      @id = deviceconfig.id
+      @name = deviceconfig.name
+      @houseid = deviceconfig.houseid
+      @deviceid = deviceconfig.deviceid
 
       super()
 
@@ -165,10 +153,10 @@ module.exports = (env) ->
       @conf.load deviceconfig
       @conf.validate()
 
-      @id = @conf.get "id"
-      @name = @conf.get "name"
-      @houseid = @conf.get "houseid"
-      @deviceid = @conf.get "deviceid"
+      @id = deviceconfig.id
+      @name = deviceconfig.name
+      @houseid = deviceconfig.houseid
+      @deviceid = deviceconfig.deviceid
 
       super()
 
@@ -190,10 +178,10 @@ module.exports = (env) ->
       @conf.load deviceconfig
       @conf.validate()
 
-      @id = @conf.get "id"
-      @name = @conf.get "name"
-      @houseid = @conf.get "houseid"
-      @deviceid = @conf.get "deviceid"
+      @id = deviceconfig.id
+      @name = deviceconfig.name
+      @houseid = deviceconfig.houseid
+      @deviceid = deviceconfig.deviceid
 
       @changeStateTo off
 
@@ -228,19 +216,19 @@ module.exports = (env) ->
       @conf.load deviceconfig
       @conf.validate()
 
-      @id = @conf.get "id"
-      @name = @conf.get "name"
-      @sensorid = @conf.get "sensorid"
-      @scale = @conf.get "scale"
-      @offset = @conf.get "offset"
+      @id = deviceconfig.id
+      @name = deviceconfig.name
+      @sensorid = deviceconfig.sensorid
+      @scale = deviceconfig.scale
+      @offset = deviceconfig.offset
       @value = 0
 
       @attributes =
         value:
           description: "the sensor value"
-          type: Number
-          label:@conf.get "label"
-          unit:@conf.get "unit"
+          type: "number"
+          label: deviceconfig.label
+          unit: deviceconfig.unit
 
       # update the value every 3 seconds
       if demo
