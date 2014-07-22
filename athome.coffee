@@ -40,6 +40,7 @@ module.exports = (env) ->
         AHSwitchElro, 
         AHSensorValue,
         AHRCSwitchElro,
+        AHKeypad
       ]
 
       for Cl in deviceClasses
@@ -48,8 +49,8 @@ module.exports = (env) ->
             configDef: deviceConfigDef[Cl.name]
             createCallback: (deviceConfig) => 
               device = new Cl(deviceConfig, @isDemo)
-              if Cl in [AHRCSwitchElro, AHSensorValue]
-                @cmdReceivers.push rswitch
+              if Cl in [AHRCSwitchElro, AHSensorValue, AHKeypad]
+                @cmdReceivers.push device
               return device
           })
 
@@ -242,6 +243,20 @@ module.exports = (env) ->
       @emit "value", @value
 
 
+  class AHKeypad extends env.devices.ButtonsDevice
+
+    constructor: (deviceconfig, demo) ->
+      super(deviceconfig)
+
+    handleReceivedCmd: (command) ->
+      console.log command
+      return false
+      # params = command.split " "
+      # return false if params.length < 4 or params[0] != "SV" or params[1] != @sensorid
+
+      # @value = parseFloat(params[3], 10)*@scale + @offset
+      # @emit "value", @value
+      # return true;
 
 
   atHomePlugin = new AtHomePlugin
