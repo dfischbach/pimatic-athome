@@ -3,8 +3,7 @@ module.exports = (env) ->
 
   convict = env.require "convict"
 
-  # Require the [Q](https://github.com/kriskowal/q) promise library
-  Q = env.require 'q'
+  Promise = env.require 'bluebird'
 
   # Require the [cassert library](https://github.com/rhoot/cassert).
   assert = env.require 'cassert'
@@ -22,15 +21,10 @@ module.exports = (env) ->
     init: (app, @framework, config) ->
       env.logger.info "atHome: init"
 
-      @conf = convict _.cloneDeep(require("./athome-plugin-config-schema"))
+      @isDemo = config.demo
 
-      @conf.load config
-      @conf.validate()
-
-      @isDemo = @conf.get "demo"
-
-      serialName = @conf.get "serialDeviceName"
-      baudrate = @conf.get "baudrate"
+      serialName = config.serialDeviceName
+      baudrate = config.baudrate
       env.logger.info "atHome: init with serial device #{serialName}@#{baudrate}baud demo #{@isDemo}"
 
       @cmdReceivers = [];
@@ -38,28 +32,25 @@ module.exports = (env) ->
       if !@isDemo
         @transport = new AHTransport serialName, baudrate, @receiveCommandCallback
 
+      deviceConfigDef = require("./athome-device-config-schema")
 
-    createDevice: (deviceConfig) ->
-      env.logger.info "atHome: createDevice #{deviceConfig.id}"
-      return switch deviceConfig.class
-        when 'AHSwitchFS20'
-          @framework.registerDevice(new AHSwitchFS20 deviceConfig)
-          true
-        when 'AHSwitchElro'
-          @framework.registerDevice(new AHSwitchElro deviceConfig)
-          true
-        when 'AHRCSwitchElro'
-          rswitch = new AHRCSwitchElro deviceConfig
-          @cmdReceivers.push rswitch
-          @framework.registerDevice(rswitch)
-          true
-        when 'AHSensorValue'
-          value = new AHSensorValue deviceConfig, @isDemo
-          @cmdReceivers.push value
-          @framework.registerDevice(value)
-          true
-        else
-          false
+      deviceClasses = [
+        AHSwitchFS20,
+        AHSwitchElro, 
+        AHSensorValue,
+        AHRCSwitchElro,
+      ]
+
+      for Cl in deviceClasses
+        do (Cl) =>
+          @framework.registerDeviceClass(Cl.name, {
+            configDef: deviceConfigDef[Cl.name]
+            createCallback: (deviceConfig) => 
+              device = new Cl(deviceConfig, @isDemo)
+              if Cl in [AHRCSwitchElro, AHSensorValue]
+                @cmdReceivers.push device
+              return device
+          })
 
     sendCommand: (id, cmdString) ->
       if !@isDemo
@@ -137,72 +128,61 @@ module.exports = (env) ->
   class AHSwitchFS20 extends env.devices.PowerSwitch
 
     constructor: (deviceconfig) ->
-      @conf = convict _.cloneDeep(require("./athome-device-config-schema").AHSwitchFS20)
-      @conf.load deviceconfig
-      @conf.validate()
-
-      @id = @conf.get "id"
-      @name = @conf.get "name"
-      @houseid = @conf.get "houseid"
-      @deviceid = @conf.get "deviceid"
+      @id = deviceconfig.id
+      @name = deviceconfig.name
+      @houseid = deviceconfig.houseid
+      @deviceid = deviceconfig.deviceid
 
       super()
 
 
     changeStateTo: (state) ->
-      if @_state is state then return Q true
-      else return Q.fcall =>
+      if @_state is state then return Promise.resolve true
+      else return Promise.try( =>
         cmd = 'F '+@houseid+@deviceid
         atHomePlugin.sendCommand @id, (if state is on then cmd+'10' else cmd+'00')
         @_setState state
-
+      )
 
   # AHSwitchElro controls ELRO power points
   class AHSwitchElro extends env.devices.PowerSwitch
 
     constructor: (deviceconfig) ->
-      @conf = convict _.cloneDeep(require("./athome-device-config-schema").AHSwitchElro)
-      @conf.load deviceconfig
-      @conf.validate()
-
-      @id = @conf.get "id"
-      @name = @conf.get "name"
-      @houseid = @conf.get "houseid"
-      @deviceid = @conf.get "deviceid"
+      @id = deviceconfig.id
+      @name = deviceconfig.name
+      @houseid = deviceconfig.houseid
+      @deviceid = deviceconfig.deviceid
 
       super()
 
 
     changeStateTo: (state) ->
-      if @_state is state then return Q true
-      else return Q.fcall =>
+      if @_state is state then return Promise.resolve true
+      else return Promise.try( =>
         cmd = 'E '+@houseid+' '+@deviceid
         atHomePlugin.sendCommand @id, (if state is on then cmd+' 1' else cmd+' 0')
         @_setState state
-
+      )
 
 
   # AHRCSwitchElro is a switch which state can be changed be the ui or by an ELRO Remote control
   class AHRCSwitchElro extends env.devices.PowerSwitch
 
     constructor: (deviceconfig) ->
-      @conf = convict _.cloneDeep(require("./athome-device-config-schema").AHSwitchElro)
-      @conf.load deviceconfig
-      @conf.validate()
-
-      @id = @conf.get "id"
-      @name = @conf.get "name"
-      @houseid = @conf.get "houseid"
-      @deviceid = @conf.get "deviceid"
+      @id = deviceconfig.id
+      @name = deviceconfig.name
+      @houseid = deviceconfig.houseid
+      @deviceid = deviceconfig.deviceid
 
       @changeStateTo off
 
       super()
 
     changeStateTo: (state) ->
-      if @_state is state then return Q true
-      else return Q.fcall =>
+      if @_state is state then return Promise.resolve true
+      else return Promise.try( =>
         @_setState state
+      )
 
     handleReceivedCmd: (command) ->
       params = command.split " "
@@ -224,23 +204,19 @@ module.exports = (env) ->
     getTemplateName: -> "device"
 
     constructor: (deviceconfig, demo) ->
-      @conf = convict _.cloneDeep(require("./athome-device-config-schema").AHSensorValue)
-      @conf.load deviceconfig
-      @conf.validate()
-
-      @id = @conf.get "id"
-      @name = @conf.get "name"
-      @sensorid = @conf.get "sensorid"
-      @scale = @conf.get "scale"
-      @offset = @conf.get "offset"
+      @id = deviceconfig.id
+      @name = deviceconfig.name
+      @sensorid = deviceconfig.sensorid
+      @scale = deviceconfig.scale
+      @offset = deviceconfig.offset
       @value = 0
 
       @attributes =
         value:
           description: "the sensor value"
-          type: Number
-          label:@conf.get "label"
-          unit:@conf.get "unit"
+          type: "number"
+          label: deviceconfig.label
+          unit: deviceconfig.unit
 
       # update the value every 3 seconds
       if demo
@@ -250,7 +226,7 @@ module.exports = (env) ->
 
       super()
 
-    getValue: -> Q(@value)
+    getValue: -> Promise.resolve(@value)
 
     handleReceivedCmd: (command) ->
       params = command.split " "

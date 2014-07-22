@@ -1,68 +1,99 @@
-# Defines a `node-convict` config-schema and exports it.
-module.exports =
-
-  AHSwitchFS20:
-    id:
-      doc: "The id of a device"
-      format: String
-      default: "atHomeId"
-    name:
-      doc: "The name of a device"
-      format: String
-      default: "atHomeName"
-    houseid:
-      doc: "The house code"
-      format: String
-      default: "0000"
-    deviceid:
-      doc: "The fs20 device id"
-      format: String
-      default: "00"
-
-  AHSwitchElro:
-    id:
-      doc: "The id of a device"
-      format: String
-      default: "atHomeId"
-    name:
-      doc: "The name of a device"
-      format: String
-      default: "atHomeName"
-    houseid:
-      doc: "The house code"
-      format: String
-      default: "11111"
-    deviceid:
-      doc: "The elro device id"
-      format: String
-      default: "10000"
-
-  AHSensorValue:
-    id:
-      doc: "The id of a device"
-      format: String
-      default: "atHomeId"
-    name:
-      doc: "The name of a device"
-      format: String
-      default: "atHomeName"
-    sensorid:
-      doc: "The id of a sensor"
-      format: String
-      default: "0"
-    label:
-      doc: "The display value of a value"
-      format: String
-      default: "Value"
-    unit:
-      doc: "The unit of a value"
-      format: String
-      default: ""
-    scale:
-      doc: "scale applied to the value"
-      format: Number
-      default: 1
-    offset:
-      doc: "offset applied to the value after scaling"
-      format: Number
-      default: 0
+module.exports = {
+  title: "athome device config schemas"
+  AHSwitchFS20: {
+    title: "AHSwitchFS20 config options"
+    type: "object"
+    properties:
+      id:
+        description: "The id of a device"
+        type: "string"
+        default: "atHomeId"
+      name:
+        description: "The name of a device"
+        type: "string"
+        default: "atHomeName"
+      houseid:
+        description: "The house code"
+        type: "string"
+        default: "0000"
+      deviceid:
+        description: "The fs20 device id"
+        type: "string"
+        default: "00"
+  }
+  AHSwitchElro: {
+    title: "AHSwitchElro config options"
+    type: "object"
+    properties:
+      id:
+        description: "The id of a device"
+        type: "string"
+        default: "atHomeId"
+      name:
+        description: "The name of a device"
+        type: "string"
+        default: "atHomeName"
+      houseid:
+        description: "The house code"
+        type: "string"
+        default: "11111"
+      deviceid:
+        description: "The elro device id"
+        type: "string"
+        default: "10000"
+  }
+  AHRCSwitchElro: {
+    title: "AHRCSwitchElro config options"
+    type: "object"
+    properties:
+      id:
+        description: "The id of a device"
+        type: "string"
+        default: "atHomeId"
+      name:
+        description: "The name of a device"
+        type: "string"
+        default: "atHomeName"
+      houseid:
+        description: "The house code"
+        type: "string"
+        default: "11111"
+      deviceid:
+        description: "The elro device id"
+        type: "string"
+        default: "10000"
+  }
+  AHSensorValue: {
+    title: "AHSensorValue config options"
+    type: "object"
+    properties:
+      id:
+        description: "The id of a device"
+        type: "string"
+        default: "atHomeId"
+      name:
+        description: "The name of a device"
+        type: "string"
+        default: "atHomeName"
+      sensorid:
+        description: "The id of a sensor"
+        type: "string"
+        default: "0"
+      label:
+        description: "The display value of a value"
+        type: "string"
+        default: "Value"
+      unit:
+        description: "The unit of a value"
+        type: "string"
+        default: ""
+      scale:
+        description: "scale applied to the value"
+        type: "number"
+        default: 1
+      offset:
+        description: "offset applied to the value after scaling"
+        type: "number"
+        default: 0
+  }
+}
