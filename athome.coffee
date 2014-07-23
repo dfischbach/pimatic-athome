@@ -27,7 +27,7 @@ module.exports = (env) ->
       baudrate = config.baudrate
       env.logger.info "atHome: init with serial device #{serialName}@#{baudrate}baud demo #{@isDemo}"
 
-      @cmdReceivers = [];
+      @cmdReceivers = []
 
       if !@isDemo
         @transport = new AHTransport serialName, baudrate, @receiveCommandCallback
@@ -39,6 +39,7 @@ module.exports = (env) ->
         AHSwitchElro, 
         AHSensorValue,
         AHRCSwitchElro,
+        AHKeypad
       ]
 
       for Cl in deviceClasses
@@ -47,7 +48,7 @@ module.exports = (env) ->
             configDef: deviceConfigDef[Cl.name]
             createCallback: (deviceConfig) => 
               device = new Cl(deviceConfig, @isDemo)
-              if Cl in [AHRCSwitchElro, AHSensorValue]
+              if Cl in [AHRCSwitchElro, AHSensorValue, AHKeypad]
                 @cmdReceivers.push device
               return device
           })
@@ -97,7 +98,7 @@ module.exports = (env) ->
         dataString = "#{data}"
 
         # remove carriage return
-        dataString = dataString.replace(/[\r]/g, '');
+        dataString = dataString.replace(/[\r]/g, '')
 
         # line feed ?
         if dataString.indexOf('\n') != -1
@@ -194,7 +195,7 @@ module.exports = (env) ->
       else
         @changeStateTo off
 
-      return true;
+      return true
 
 
   # AHSensorValue handles arduino delivered measure values like voltage, temperatue, ...
@@ -235,13 +236,25 @@ module.exports = (env) ->
 
       @value = parseFloat(params[3], 10)*@scale + @offset
       @emit "value", @value
-      return true;
+      return true
 
     updateDemoValue: () ->
       @value = @value+50
       @emit "value", @value
 
 
+  class AHKeypad extends env.devices.ButtonsDevice
+
+    constructor: (deviceconfig, demo) ->
+      super(deviceconfig)
+
+    handleReceivedCmd: (command) ->
+      params = command.split " "
+      return false if params.length < 2 or params[0] != "K"
+      key = params[1]
+      #TODO: Check if button is on deviceconfig
+      @emit "button", key
+      return true
 
 
   atHomePlugin = new AtHomePlugin

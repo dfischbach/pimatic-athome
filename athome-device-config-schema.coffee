@@ -96,4 +96,21 @@ module.exports = {
         type: "number"
         default: 0
   }
+  AHKeypad: {
+    title: "AHKeypad config options"
+    type: "object"
+    properties:
+      buttons:
+        description: "Buttons of the keypad"
+        type: "array"
+        default: []
+        format: "table"
+        items:
+          type: "object"
+          properties:
+            id:
+              type: "string"
+            text:
+              type: "string"
+  }
 }
