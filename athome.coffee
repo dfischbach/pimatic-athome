@@ -128,12 +128,11 @@ module.exports = (env) ->
   # AHSwitchFS20 controls FS20 devices
   class AHSwitchFS20 extends env.devices.PowerSwitch
 
-    constructor: (deviceconfig) ->
-      @id = deviceconfig.id
-      @name = deviceconfig.name
-      @houseid = deviceconfig.houseid
-      @deviceid = deviceconfig.deviceid
-
+    constructor: (@config) ->
+      @id = config.id
+      @name = config.name
+      @houseid = config.houseid
+      @deviceid = config.deviceid
       super()
 
 
@@ -148,11 +147,11 @@ module.exports = (env) ->
   # AHSwitchElro controls ELRO power points
   class AHSwitchElro extends env.devices.PowerSwitch
 
-    constructor: (deviceconfig) ->
-      @id = deviceconfig.id
-      @name = deviceconfig.name
-      @houseid = deviceconfig.houseid
-      @deviceid = deviceconfig.deviceid
+    constructor: (@config) ->
+      @id = config.id
+      @name = config.name
+      @houseid = config.houseid
+      @deviceid = config.deviceid
 
       super()
 
@@ -169,11 +168,11 @@ module.exports = (env) ->
   # AHRCSwitchElro is a switch which state can be changed be the ui or by an ELRO Remote control
   class AHRCSwitchElro extends env.devices.PowerSwitch
 
-    constructor: (deviceconfig) ->
-      @id = deviceconfig.id
-      @name = deviceconfig.name
-      @houseid = deviceconfig.houseid
-      @deviceid = deviceconfig.deviceid
+    constructor: (@config) ->
+      @id = config.id
+      @name = config.name
+      @houseid = config.houseid
+      @deviceid = config.deviceid
 
       @changeStateTo off
 
@@ -204,20 +203,20 @@ module.exports = (env) ->
 
     getTemplateName: -> "device"
 
-    constructor: (deviceconfig, demo) ->
-      @id = deviceconfig.id
-      @name = deviceconfig.name
-      @sensorid = deviceconfig.sensorid
-      @scale = deviceconfig.scale
-      @offset = deviceconfig.offset
+    constructor: (@config, demo) ->
+      @id = config.id
+      @name = config.name
+      @sensorid = config.sensorid
+      @scale = config.scale
+      @offset = config.offset
       @value = 0
 
       @attributes =
         value:
           description: "the sensor value"
           type: "number"
-          label: deviceconfig.label
-          unit: deviceconfig.unit
+          label: config.label
+          unit: config.unit
 
       # update the value every 3 seconds
       if demo
@@ -245,14 +244,14 @@ module.exports = (env) ->
 
   class AHKeypad extends env.devices.ButtonsDevice
 
-    constructor: (deviceconfig, demo) ->
-      super(deviceconfig)
+    constructor: (@config, demo) ->
+      super(@config)
 
     handleReceivedCmd: (command) ->
       params = command.split " "
       return false if params.length < 2 or params[0] != "K"
       key = params[1]
-      #TODO: Check if button is on deviceconfig
+      #TODO: Check if button is on @config
       @emit "button", key
       return true
 
