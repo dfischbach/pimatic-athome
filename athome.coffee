@@ -25,7 +25,9 @@ module.exports = (env) ->
 
       serialName = config.serialDeviceName
       baudrate = config.baudrate
-      env.logger.info "atHome: init with serial device #{serialName}@#{baudrate}baud demo #{@isDemo}"
+      env.logger.info(
+        "atHome: init with serial device #{serialName}@#{baudrate}baud demo #{@isDemo}"
+      )
 
       @cmdReceivers = []
 
@@ -117,7 +119,9 @@ module.exports = (env) ->
         env.logger.debug "AtHomeTransport: #{id} sendCommand #{cmdString}"
         @serial.write(cmdString+'\n')
       else
-        env.logger.error "AtHomeTransport: serial port not open -> skipping command, trying to open serial port"
+        env.logger.error(
+          "AtHomeTransport: serial port not open -> skipping command, trying to open serial port"
+        )
         @serial.open (err) =>
           if ( err? )
             env.logger.error "open serialPort failed #{err}"
@@ -187,7 +191,9 @@ module.exports = (env) ->
     handleReceivedCmd: (command) ->
       params = command.split " "
 
-      return false if params.length < 4 or params[0] != "E" or params[1] != @houseid or params[2] != @deviceid
+      return false if (
+        params.length < 4 or params[0] != "E" or params[1] != @houseid or params[2] != @deviceid
+      )
 
       if ( params[3] == '1' )
         @changeStateTo on
