@@ -38,7 +38,7 @@ module.exports = (env) ->
 
       deviceClasses = [
         AHSwitchFS20,
-        AHSwitchElro, 
+        AHSwitchElro,
         AHSensorValue,
         AHRCSwitchElro,
         AHKeypad
@@ -46,9 +46,9 @@ module.exports = (env) ->
 
       for Cl in deviceClasses
         do (Cl) =>
-          @framework.registerDeviceClass(Cl.name, {
+          @framework.deviceManager.registerDeviceClass(Cl.name, {
             configDef: deviceConfigDef[Cl.name]
-            createCallback: (deviceConfig) => 
+            createCallback: (deviceConfig) =>
               device = new Cl(deviceConfig, @isDemo)
               if Cl in [AHRCSwitchElro, AHSensorValue, AHKeypad]
                 @cmdReceivers.push device
