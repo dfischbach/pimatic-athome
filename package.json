@@ -15,9 +15,9 @@
     "athome-plugin-config-schema.coffee",
     "athome-device-config-schema.coffee"
   ],
-  "version": "0.1.4",
+  "version": "0.8.0",
   "private": false,
-  "configSchema": "athome-plugin-config-schema.coffee",  
+  "configSchema": "athome-plugin-config-schema.coffee",
   "dependencies": {
     "serialport": ">1.3.1"
   },
