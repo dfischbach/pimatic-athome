@@ -77,6 +77,29 @@ This is an example for the devices section in the config.json file.
       "sensorid": "10",
       "label": "Temperature",
       "unit": "°C"
+    },
+    {
+      "id": "keypad",
+      "name": "Keypad",
+      "class": "AHKeypad",
+      "buttons": [
+        { "id": "0", "text": "0" },
+        { "id": "1", "text": "1" },
+        { "id": "2", "text": "2" },
+        { "id": "3", "text": "3" },
+        { "id": "4", "text": "4" },
+        { "id": "5", "text": "5" },
+        { "id": "6", "text": "6" },
+        { "id": "7", "text": "7" },
+        { "id": "8", "text": "8" },
+        { "id": "9", "text": "9" },
+        { "id": "A", "text": "A" },
+        { "id": "B", "text": "B" },
+        { "id": "C", "text": "C" },
+        { "id": "D", "text": "D" },
+        { "id": "#", "text": "#" },
+        { "id": "*", "text": "*" }
+      ]
     }
   ],
 
