@@ -2,12 +2,15 @@
   "name": "pimatic-athome",
   "description": "pimatic plugin to communicate with an arduino.",
   "keywords": [
-    "pimatic"
+    "pimatic",
+    "devices"
   ],
   "author": {
     "name": "Dirk Fischbach",
-    "email": "dirk@fischbachnet.de"
+    "email": "dirk@fischbachnet.de",
+    "url": "http://github.com/dfischbach"
   },
+  "homepage": "http://github.com/dfischbach/pimatic-athome",
   "main": "athome.coffee",
   "files": [
     "athome.coffee",
@@ -15,7 +18,7 @@
     "athome-plugin-config-schema.coffee",
     "athome-device-config-schema.coffee"
   ],
-  "version": "0.8.0",
+  "version": "0.8.1",
   "private": false,
   "configSchema": "athome-plugin-config-schema.coffee",
   "dependencies": {
