@@ -50,7 +50,7 @@ module.exports = (env) ->
             configDef: deviceConfigDef[Cl.name]
             createCallback: (deviceConfig) =>
               device = new Cl(deviceConfig, @isDemo)
-              if Cl in [AHRCSwitchElro, AHSensorValue, AHKeypad]
+              if Cl in [AHSwitchElro, AHRCSwitchElro, AHSensorValue, AHKeypad]
                 @cmdReceivers.push device
               return device
           })
@@ -96,7 +96,7 @@ module.exports = (env) ->
         @isPortOpen = false
 
       @serial.on 'data', (data) =>
-        env.logger.debug "atHome: serial data received #{data}"
+        # env.logger.debug "atHome: serial data received #{data}"
         dataString = "#{data}"
 
         # remove carriage return
@@ -158,6 +158,21 @@ module.exports = (env) ->
       @deviceid = config.deviceid
 
       super()
+
+
+    handleReceivedCmd: (command) ->
+      params = command.split " "
+
+      return false if (
+        params.length < 4 or params[0] != "E" or params[1] != @houseid or params[2] != @deviceid
+      )
+
+      if ( params[3] == '1' )
+        @changeStateTo on
+      else
+        @changeStateTo off
+
+      return true
 
 
     changeStateTo: (state) ->
