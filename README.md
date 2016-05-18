@@ -9,9 +9,9 @@ It shows you, how to setup the communication between PI/Pimatic and the controll
 
 
 
-The source code for the micro-controller is avaible [here](https://github.com/dfischbach/pimatic-athome-arduino).
+The source code for the micro-controller is available [here](https://github.com/dfischbach/pimatic-athome-arduino).
 
-##Installation
+## Installation
 To enable the AtHome plugin add this section to your config.json file.
 
 ```
