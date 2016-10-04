@@ -4,8 +4,8 @@ pimatic-athome
 This is a pimatic plugin which allows you to connect an Arduino compatible micro-controller over the serial port to the [pimatic home automation framework](http://pimatic.org).
 
 In general you can use the plugin and micro-controller source code as a starting point for your specific needs.
-It shows you, how to setup the communication between PI/Pimatic and the controller board using a serial connection.
-  a separate USB to serial converter or the build in one with boards like the Arduino nano.
+It shows you, how to setup the communication between PI/Pimatic and the controller board using a serial connection,
+  a separate USB to serial converter or the build in serial port with boards like the Arduino nano.
 
 
 
@@ -104,7 +104,3 @@ This is an example for the devices section in the config.json file.
   ],
 
 ```
-
-
-
-More documentation will follow.

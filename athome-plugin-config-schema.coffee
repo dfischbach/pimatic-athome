@@ -10,8 +10,4 @@ module.exports = {
       doc: "The baudrate to use for serial communication"
       type: "number"
       default: 57600
-    demo:
-      doc: "if true, no connection with serial device"
-      type: "boolean"
-      default: "true"
 }
