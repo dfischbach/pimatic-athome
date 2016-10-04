@@ -1,15 +1,9 @@
 
 module.exports = (env) ->
 
-  convict = env.require "convict"
-
   Promise = env.require 'bluebird'
-
-  # Require the [cassert library](https://github.com/rhoot/cassert).
-  assert = env.require 'cassert'
-
-  # Require the [SerialPort] (https://github.com/voodootikigod/node-serialport)
-  {SerialPort} = require 'serialport'
+  serialport = require 'serialport'
+  SerialPort = serialport.SerialPort
 
   _ = env.require 'lodash'
 
@@ -18,21 +12,14 @@ module.exports = (env) ->
 
     @transport
 
-    init: (app, @framework, config) ->
+    init: (app, @framework, @config) ->
       env.logger.info "atHome: init"
 
-      @isDemo = config.demo
-
-      serialName = config.serialDeviceName
-      baudrate = config.baudrate
-      env.logger.info(
-        "atHome: init with serial device #{serialName}@#{baudrate}baud demo #{@isDemo}"
-      )
+      serialName = @config.serialDeviceName
+      env.logger.info("atHome: init with serial device #{serialName}@#{@config.baudrate}baud")
 
       @cmdReceivers = []
-
-      if !@isDemo
-        @transport = new AHTransport serialName, baudrate, @receiveCommandCallback
+      @transport = new AHTransport serialName, @config.baudrate, @receiveCommandCallback
 
       deviceConfigDef = require("./athome-device-config-schema")
 
@@ -49,15 +36,21 @@ module.exports = (env) ->
           @framework.deviceManager.registerDeviceClass(Cl.name, {
             configDef: deviceConfigDef[Cl.name]
             createCallback: (deviceConfig) =>
-              device = new Cl(deviceConfig, @isDemo)
+              device = new Cl(deviceConfig)
               if Cl in [AHSwitchElro, AHRCSwitchElro, AHSensorValue, AHKeypad]
                 @cmdReceivers.push device
               return device
           })
 
+    removeCmdReceiver: (device) ->
+      env.logger.info "removeCmdReceiver #{device}"
+
+      index = @cmdReceivers.indexOf(device)
+      if index > -1
+        @cmdReceivers.splice(index, 1)
+
     sendCommand: (id, cmdString) ->
-      if !@isDemo
-        @transport.sendCommand id, cmdString
+      @transport.sendCommand id, cmdString
 
     receiveCommandCallback: (cmdString) =>
       for cmdReceiver in @cmdReceivers
@@ -96,7 +89,7 @@ module.exports = (env) ->
         @isPortOpen = false
 
       @serial.on 'data', (data) =>
-        # env.logger.debug "atHome: serial data received #{data}"
+        env.logger.debug "atHome: serial data received #{data}"
         dataString = "#{data}"
 
         # remove carriage return
@@ -133,12 +126,15 @@ module.exports = (env) ->
   class AHSwitchFS20 extends env.devices.PowerSwitch
 
     constructor: (@config) ->
-      @id = config.id
-      @name = config.name
-      @houseid = config.houseid
-      @deviceid = config.deviceid
+      @id = @config.id
+      @name = @config.name
+      @houseid = @config.houseid
+      @deviceid = @config.deviceid
       super()
 
+    destroy: ->
+      cocPlugin.removeCmdReceiver this
+      super()
 
     changeStateTo: (state) ->
       if @_state is state then return Promise.resolve true
@@ -152,11 +148,14 @@ module.exports = (env) ->
   class AHSwitchElro extends env.devices.PowerSwitch
 
     constructor: (@config) ->
-      @id = config.id
-      @name = config.name
-      @houseid = config.houseid
-      @deviceid = config.deviceid
+      @id = @config.id
+      @name = @config.name
+      @houseid = @config.houseid
+      @deviceid = @config.deviceid
+      super()
 
+    destroy: ->
+      cocPlugin.removeCmdReceiver this
       super()
 
 
@@ -188,13 +187,15 @@ module.exports = (env) ->
   class AHRCSwitchElro extends env.devices.PowerSwitch
 
     constructor: (@config) ->
-      @id = config.id
-      @name = config.name
-      @houseid = config.houseid
-      @deviceid = config.deviceid
-
+      @id = @config.id
+      @name = @config.name
+      @houseid = @config.houseid
+      @deviceid = @config.deviceid
       @changeStateTo off
+      super()
 
+    destroy: ->
+      cocPlugin.removeCmdReceiver this
       super()
 
     changeStateTo: (state) ->
@@ -209,12 +210,10 @@ module.exports = (env) ->
       return false if (
         params.length < 4 or params[0] != "E" or params[1] != @houseid or params[2] != @deviceid
       )
-
       if ( params[3] == '1' )
         @changeStateTo on
       else
         @changeStateTo off
-
       return true
 
 
@@ -224,27 +223,24 @@ module.exports = (env) ->
 
     getTemplateName: -> "device"
 
-    constructor: (@config, demo) ->
-      @id = config.id
-      @name = config.name
-      @sensorid = config.sensorid
-      @scale = config.scale
-      @offset = config.offset
+    constructor: (@config) ->
+      @id = @config.id
+      @name = @config.name
+      @sensorid = @config.sensorid
+      @scale = @config.scale
+      @offset = @config.offset
       @value = 0
 
       @attributes =
         value:
           description: "the sensor value"
           type: "number"
-          label: config.label
-          unit: config.unit
+          label: @config.label
+          unit: @config.unit
+      super()
 
-      # update the value every 3 seconds
-      if demo
-        setInterval(=>
-          @updateDemoValue()
-        , 3000)
-
+    destroy: ->
+      cocPlugin.removeCmdReceiver this
       super()
 
     getValue: -> Promise.resolve(@value)
@@ -257,10 +253,6 @@ module.exports = (env) ->
       @value = parseFloat(params[3], 10)*@scale + @offset
       @emit "value", @value
       return true
-
-    updateDemoValue: () ->
-      @value = @value+50
-      @emit "value", @value
 
 
   class AHKeypad extends env.devices.ButtonsDevice
