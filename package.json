@@ -19,7 +19,7 @@
     "athome-plugin-config-schema.coffee",
     "athome-device-config-schema.coffee"
   ],
-  "version": "0.9.0",
+  "version": "0.9.1",
   "private": false,
   "configSchema": "athome-plugin-config-schema.coffee",
   "dependencies": {
