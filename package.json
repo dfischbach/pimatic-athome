@@ -10,6 +10,7 @@
     "email": "dirk@fischbachnet.de",
     "url": "http://github.com/dfischbach"
   },
+  "license": "GPL-2.0",
   "homepage": "http://github.com/dfischbach/pimatic-athome",
   "main": "athome.coffee",
   "files": [
