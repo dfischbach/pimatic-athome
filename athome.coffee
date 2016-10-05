@@ -133,7 +133,7 @@ module.exports = (env) ->
       super()
 
     destroy: ->
-      cocPlugin.removeCmdReceiver this
+      atHomePlugin.removeCmdReceiver this
       super()
 
     changeStateTo: (state) ->
@@ -155,7 +155,7 @@ module.exports = (env) ->
       super()
 
     destroy: ->
-      cocPlugin.removeCmdReceiver this
+      atHomePlugin.removeCmdReceiver this
       super()
 
 
@@ -195,7 +195,7 @@ module.exports = (env) ->
       super()
 
     destroy: ->
-      cocPlugin.removeCmdReceiver this
+      atHomePlugin.removeCmdReceiver this
       super()
 
     changeStateTo: (state) ->
@@ -240,7 +240,7 @@ module.exports = (env) ->
       super()
 
     destroy: ->
-      cocPlugin.removeCmdReceiver this
+      atHomePlugin.removeCmdReceiver this
       super()
 
     getValue: -> Promise.resolve(@value)
